@@ -11,12 +11,12 @@ import { describe, expect, it, vi } from "vitest";
  * branch is a module mock, and a mock is per-file.
  */
 
-const { signInWithGoogleViaKeycloak } = vi.hoisted(() => ({
-  signInWithGoogleViaKeycloak: vi.fn(),
+const { signInWithGoogle } = vi.hoisted(() => ({
+  signInWithGoogle: vi.fn(),
 }));
 
-vi.mock("@/lib/auth/keycloakIdentity", () => ({
-  signInWithGoogleViaKeycloak,
+vi.mock("@/lib/auth/googleSignIn", () => ({
+  signInWithGoogle,
   isGoogleSignInConfigured: false,
   GoogleSignInCancelledError: class GoogleSignInCancelledError extends Error {},
 }));

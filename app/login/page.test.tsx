@@ -12,7 +12,7 @@ const {
   loginWithIdToken,
   requestNonce,
   verifyMfaLogin,
-  signInWithGoogleViaKeycloak,
+  signInWithGoogle,
   push,
   searchParams,
 } = vi.hoisted(() => ({
@@ -20,7 +20,7 @@ const {
   loginWithIdToken: vi.fn(),
   requestNonce: vi.fn(),
   verifyMfaLogin: vi.fn(),
-  signInWithGoogleViaKeycloak: vi.fn(),
+  signInWithGoogle: vi.fn(),
   push: vi.fn(),
   // A box, not a plain URLSearchParams: the mock factory below closes over
   // this reference once, so tests mutate `.current` to change what
@@ -44,8 +44,8 @@ vi.mock("@/lib/auth/api", () => ({
 // so it is a constant by the time a test runs and cannot be changed by setting
 // the variables afterwards. Mocked as a value the individual tests override,
 // which is also the only way to exercise both branches of the button.
-vi.mock("@/lib/auth/keycloakIdentity", () => ({
-  signInWithGoogleViaKeycloak,
+vi.mock("@/lib/auth/googleSignIn", () => ({
+  signInWithGoogle,
   isGoogleSignInConfigured: true,
   GoogleSignInCancelledError: class GoogleSignInCancelledError extends Error {},
 }));
@@ -188,7 +188,7 @@ describe("LoginPage Google sign-in", () => {
   });
 
   it("redirects to /overview after a successful Google sign-in", async () => {
-    signInWithGoogleViaKeycloak.mockResolvedValue("google-id-token");
+    signInWithGoogle.mockResolvedValue("google-id-token");
     loginWithIdToken.mockResolvedValue({
       id: "1",
       email: "person@example.com",
@@ -205,7 +205,7 @@ describe("LoginPage Google sign-in", () => {
   });
 
   it("does not redirect when Google sign-in is refused", async () => {
-    signInWithGoogleViaKeycloak.mockResolvedValue("google-id-token");
+    signInWithGoogle.mockResolvedValue("google-id-token");
     loginWithIdToken.mockRejectedValue(new Error("Login failed. Your Google account may not have access yet."));
     const user = userEvent.setup();
     render(<LoginPage />);
@@ -223,7 +223,7 @@ describe("LoginPage Google sign-in", () => {
     // ... Please sign out first": Keycloak authenticated the applicant, this
     // app refused them, and Keycloak was left holding their session. There is
     // no Sign out button to press — they never got in.
-    signInWithGoogleViaKeycloak.mockResolvedValue("google-id-token");
+    signInWithGoogle.mockResolvedValue("google-id-token");
     loginWithIdToken.mockRejectedValue(new Error("nope"));
 
     process.env.NEXT_PUBLIC_KEYCLOAK_URL = "http://localhost:8180";

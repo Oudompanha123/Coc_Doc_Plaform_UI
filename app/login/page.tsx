@@ -24,7 +24,7 @@ import {
   type AuthenticatedAccount,
   verifyMfaLogin,
 } from "@/lib/auth/api";
-import { GoogleSignInCancelledError, isGoogleSignInConfigured, signInWithGoogleViaKeycloak } from "@/lib/auth/keycloakIdentity";
+import { GoogleSignInCancelledError, isGoogleSignInConfigured, signInWithGoogle } from "@/lib/auth/googleSignIn";
 import { rememberIdToken, takeIdToken } from "@/lib/auth/idTokenMemory";
 import { keycloakLogoutUrl } from "@/lib/auth/keycloakLogout";
 import { rememberSignInOutcome, takeSignInOutcome } from "@/lib/auth/signInOutcome";
@@ -267,7 +267,7 @@ function LoginForm() {
       // 2. Open the Keycloak/Google popup for this specific nonce and get
       //    back a Keycloak-issued ID token (ADR-013 — Keycloak brokers
       //    Google upstream).
-      const idToken = await signInWithGoogleViaKeycloak({ nonce });
+      const idToken = await signInWithGoogle({ nonce });
       // Kept in memory only, so signing out can pass it as id_token_hint and
       // skip Keycloak's "Do you want to log out?" page.
       rememberIdToken(idToken);
