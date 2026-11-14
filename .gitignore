@@ -20,9 +20,24 @@
 # production
 /build
 
+# test output
+/playwright-report
+/test-results
+
 # misc
 .DS_Store
+Thumbs.db
+desktop.ini
 *.pem
+*.log
+
+# editors and local tooling
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+*.swp
+.claude/settings.local.json
 
 # debug
 npm-debug.log*
