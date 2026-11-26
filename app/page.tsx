@@ -43,6 +43,9 @@ export default function RootPage() {
   );
 }
 
+/** How long `/` waits for the session check before showing the public page. */
+const ROOT_SESSION_DEADLINE_MS = 3_000;
+
 /**
  * The same destination as {@code postLoginDestination} in
  * `app/login/page.tsx`, from the same function (`landingPathFor`): whoever
@@ -52,6 +55,17 @@ export default function RootPage() {
 function RootRedirect() {
   const { status, user } = useSession();
   const router = useRouter();
+
+  // A backend that is slow to answer (a cold start on a free host can take
+  // 50s+) must not leave the front door blank. Past the deadline the visitor
+  // is sent to the public page; a signed-in person reaches their home from
+  // there with one click. Scoped to `/` only — guarded routes keep waiting
+  // for the real answer rather than treating slowness as signed-out.
+  useEffect(() => {
+    if (status !== "loading") return;
+    const timer = setTimeout(() => router.replace("/welcome"), ROOT_SESSION_DEADLINE_MS);
+    return () => clearTimeout(timer);
+  }, [status, router]);
 
   useEffect(() => {
     if (status === "loading") return;

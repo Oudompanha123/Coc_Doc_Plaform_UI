@@ -106,6 +106,38 @@ describe("the bare origin", () => {
     expect(replace).not.toHaveBeenCalled();
   });
 
+  it("gives up waiting after 3 seconds and shows the public page", () => {
+    // A cold-starting backend must not leave the bare domain blank.
+    vi.useFakeTimers();
+    try {
+      session.current = { status: "loading", user: null };
+
+      render(<RootPage />);
+      vi.advanceTimersByTime(2_999);
+      expect(replace).not.toHaveBeenCalled();
+
+      vi.advanceTimersByTime(1);
+      expect(replace).toHaveBeenCalledWith("/welcome");
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("does not fire the deadline once the session has answered", () => {
+    vi.useFakeTimers();
+    try {
+      session.current = { status: "authenticated", user: { role: "admin", mustChangePassword: false } };
+
+      render(<RootPage />);
+      vi.advanceTimersByTime(10_000);
+
+      expect(replace).toHaveBeenCalledTimes(1);
+      expect(replace).toHaveBeenCalledWith("/overview");
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it("renders nothing itself — every branch ends somewhere else", () => {
     session.current = { status: "anonymous", user: null };
 
